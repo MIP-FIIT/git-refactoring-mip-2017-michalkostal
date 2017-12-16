@@ -50,15 +50,27 @@ crc crcFast(uint8_t const message[], int nBytes){
 	return (remainder);
 } 
 
-int main() {
-	crcInit();
-	char c = "";
+int wsaFunction(){
 	WSADATA wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
 	{
 		printf("Failed. Error Code : %d", WSAGetLastError());
 		return 1;
 	}
+}
+
+int checkPort(int cisloPortu) {
+	if ((cisloPortu < 0) || (cisloPortu > 65535)) {
+		printf("Invalid port number. Terminating.\n");
+		return 1;
+	}
+}
+
+int main() {
+	crcInit();
+	char c = "";
+	
+	wsaFunction();
 	printf("k - klient\ns - server\n q - quit\n");
 
 	while ((c = getchar()) != 'q') {
@@ -81,26 +93,11 @@ int klientMain(){
 	char **fragmentovanaSprava;
 
 
-	WSADATA wsa;
-
-
-	//printf("\nInitialising Winsock...");
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-	{
-		printf("Failed. Error Code : %d", WSAGetLastError());
-		return 1;
-	}
-
-	/*printf("Enter server name or IP address:");
-	scanf("%s", server);*/
-
 	hlavicka =(HEADER *) malloc(sizeof(HEADER));
+
 	printf("Enter port:");
 	scanf("%d", &cisloPortu);
-	if ((cisloPortu < 0) || (cisloPortu > 65535)) {
-		printf("Invalid port number. Terminating.\n");
-		return 1;
-	}
+	checkPort(cisloPortu);
 
 	printf("Som v klientovi.\n");
 	//printf("%d\n", sockfd);
@@ -272,14 +269,6 @@ int serverMain() {
 	char *ackMessage;
 	WSADATA wsa;
 
-
-	//printf("\nInitialising Winsock...");
-	if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0)
-	{
-		printf("Failed. Error Code : %d", WSAGetLastError());
-		return 1;
-	}
-
 	printf("Som v serveri.\n");
 
 	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -289,11 +278,8 @@ int serverMain() {
 
 	printf("Enter port:");
 	scanf("%ld", &cisloPortu);
+	checkPort(cisloPortu);
 
-	if ((cisloPortu < 0) || (cisloPortu > 65535)) {
-		printf("Invalid port number. Terminating.\n");
-		return 1;
-	}
 	sprava = malloc(1);
 	
 	memset((char *)&mojaAdresa, 0, sizeof(mojaAdresa));
