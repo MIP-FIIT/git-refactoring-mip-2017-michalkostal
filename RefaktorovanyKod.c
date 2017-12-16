@@ -121,16 +121,16 @@ int main() {
 		switch (c) {
 		case 'k': { klientMain(); printf("k - klient\ns - server\n q - quit\n");  break; }
 		case 's': { serverMain(); printf("k - klient\ns - server\n q - quit\n"); break; }
-		//default: printf("unresolved symbol.\n");
 		}
 	}
 	return 0;
 }
+
 int klientMain(){
 	HEADER *hlavicka, *prijataHlavicka;
 
-	struct sockaddr_in mojaAdresa;   // address of the client
-	struct sockaddr_in serverAdresa; // server's address
+	struct sockaddr_in mojaAdresa;  
+	struct sockaddr_in serverAdresa; 
 	int cisloPortu, buf[512], dlzkaSpravy;
 	int sockfd = 0, slen = sizeof(mojaAdresa), velkostFragmentu = 13, recvlen, flag = 0, checksum = 0, pos = 0;
 	char sprava[60000], *bafer, *castspravy, server[20];
@@ -145,11 +145,8 @@ int klientMain(){
 	checkPort(cisloPortu);
 	sockfd = tryToSocket();
 	printf("Som v klientovi.\n");
-	//printf("%d\n", sockfd);
 
 	memset((char *)&mojaAdresa, 0, sizeof(mojaAdresa));
-
-	//strcpy(server, "127.0.0.1");
 
 	mojaAdresa.sin_family = AF_INET;
 	printf("Enter server (format IPv4): ");
@@ -188,7 +185,6 @@ int klientMain(){
 			pocetFragmentovvPoli++;
 		}
 
-		//printf("%d\n", pocetFragmentovvPoli);
 		int velkostPoslednehoFragmentu = dlzkaSpravy % (fragmentFinalSize);
 		if (velkostPoslednehoFragmentu == 0)
 			velkostPoslednehoFragmentu = fragmentFinalSize;
@@ -203,10 +199,13 @@ int klientMain(){
 			else {
 				currentSize = fragmentFinalSize;
 			}
+
 			fragmentovanaSprava[i] = (int*)malloc((currentSize + sizeof(HEADER) + 1) * sizeof(int));
+
 			for (int j = 0; j < currentSize; j++) {
 				fragmentovanaSprava[i][j] = sprava[pos + j];
 			}
+
 			pos = pos + currentSize;
 			bafer = (char *)malloc(currentSize + sizeof(HEADER) + 1);
 			hlavicka = (HEADER *)bafer;
@@ -220,15 +219,10 @@ int klientMain(){
 				flag = 0;
 			}
 			else
-			{
 				hlavicka->check = crcFast(castspravy, currentSize);
-			}
+			
 			checksum = hlavicka->check;
-
 			hlavicka->velkostF = currentSize;
-			//printf("%s\n", castspravy);
-			//printf("%d", hlavicka->check);
-
 
 			if (sendto(sockfd, bafer, (currentSize + sizeof(HEADER)), 0, (struct sockaddr *)&mojaAdresa, slen) < 0) {
 				perror("Cannot sendto()");
@@ -244,22 +238,16 @@ int klientMain(){
 				prijataHlavicka = (HEADER *)bafer;
 				recievedHeader(prijataHlavicka, bafer, checksum, &i, &pos);
 			}
-
-
 		}
 
 		sendto(sockfd, "Success", strlen("Success") + 1, 0, (struct sockaddr *)&mojaAdresa, slen);
 		pos = 0;
-
 
 		if (prepnutie(sockfd, &c) == 1) {
 			closesocket(sockfd);
 			WSACleanup();
 			break;
 		}
-	//closesocket(sockfd);
-	//WSACleanup();
-	//break;
 	}
 	return 0;
 }
@@ -316,7 +304,6 @@ int serverMain() {
 			if (strcmp(buf, "Success") == 0) {
 				sprava = (char *)realloc(sprava, strlen(sprava) + strlen("_END_") + 1);
 				sprava[strlen(sprava) + strlen("_END_") + 1] = '\0';
-				//buf[recvlen] = '\0';
 				strcat(sprava, "_END_");
 				printf("Cela sprava : %s\n\n", sprava);
 				sprava[0] = '\0';
@@ -349,7 +336,6 @@ int serverMain() {
 					if (checksum != -2) {
 						sprava = (char *)realloc(sprava, strlen(sprava) + velkostF + 1);
 						sprava[strlen(sprava) + velkostF + 1] = '\0';
-						//buf[recvlen] = '\0';
 						strcat(sprava, fragment);
 					}
 					else
