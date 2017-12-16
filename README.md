@@ -10,3 +10,4 @@ ktorého som vložil okrem už prítoných súborov všetky, ktoré som nepridal
 mergol do vetvy master. 
 
 //testovanie správneho vetvenia a mergovania v git->insights->network
+//TEST2
