@@ -8,3 +8,5 @@ ktore som este predtym nemal otestovane. V povodnej vetve Master som si vytvoril
 Nasledne som si vytvoril Refaktoring vetvu, kde som postupne commitoval a pushoval priebezne zadania. Taktiež som do nej pridal gitignore súbor, do 
 ktorého som vložil okrem už prítoných súborov všetky, ktoré som nepridal (teda tie, ktoré mi GIT STATUS vyhadzoval ako cervene.) Refaktorovany kod som 
 mergol do vetvy master. 
+
+//testovanie správneho vetvenia a mergovania v git->insights->network
