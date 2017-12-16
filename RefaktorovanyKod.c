@@ -66,6 +66,30 @@ int checkPort(int cisloPortu) {
 	}
 }
 
+int checkFragmentSize(int velkostFragmentu){
+	while (velkostFragmentu < 13) {
+		printf("Moc mala velkost, musi byt vacsia ako 12, zvolte znovu.\n");
+		scanf("%d", &velkostFragmentu);
+		getchar();
+	}
+}
+
+void setHeader(HEADER *hlavicka, int velkostFragmentu) {
+	hlavicka->poradie = -1;
+	hlavicka->check = 0;
+	hlavicka->velkostF = velkostFragmentu;
+}
+
+int tryToSocket() {
+	int sockfd;
+	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+		printf("%d\n", sockfd);
+		perror("Failed to create a socket.");
+		return 2;
+	}
+	else return sockfd;
+}
+
 int main() {
 	crcInit();
 	char c = "";
@@ -87,26 +111,19 @@ int klientMain(){
 
 	struct sockaddr_in mojaAdresa;   // address of the client
 	struct sockaddr_in serverAdresa; // server's address
-	int sockfd =0, cisloPortu, buf[512], dlzkaSpravy;
-	int slen = sizeof(mojaAdresa), velkostFragmentu=13, recvlen, flag = 0, checksum = 0, pos = 0;
+	int cisloPortu, buf[512], dlzkaSpravy;
+	int sockfd = 0, slen = sizeof(mojaAdresa), velkostFragmentu = 13, recvlen, flag = 0, checksum = 0, pos = 0;
 	char sprava[60000], *bafer, *castspravy, server[20];
 	char **fragmentovanaSprava;
-
 
 	hlavicka =(HEADER *) malloc(sizeof(HEADER));
 
 	printf("Enter port:");
 	scanf("%d", &cisloPortu);
 	checkPort(cisloPortu);
-
+	sockfd = tryToSocket();
 	printf("Som v klientovi.\n");
 	//printf("%d\n", sockfd);
-
-	if ( (sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-		printf("%d\n", sockfd);
-		perror("Failed to create a socket.");
-		return 2;
-	}
 
 	memset((char *)&mojaAdresa, 0, sizeof(mojaAdresa));
 
@@ -118,26 +135,12 @@ int klientMain(){
 	mojaAdresa.sin_addr.S_un.S_addr= inet_addr(server);
 	mojaAdresa.sin_port = htons(cisloPortu);
 
-	/*memset((char*)&serverAdresa, 0, sizeof(serverAdresa));
-	serverAdresa.sin_family = AF_INET;
-	serverAdresa.sin_port = htonl(cisloPortu);
-	serverAdresa.sin_addr.s_addr = inet_addr("127.0.0.1");*/
 	printf("Zadajte max velkost fragmentu: ");
 	scanf("%d", &velkostFragmentu);
 	getchar();
 
-	while (velkostFragmentu < 13) {
-		printf("Moc mala velkost, musi byt vacsia ako 12, zvolte znovu.\n");
-		scanf("%d", &velkostFragmentu);
-		getchar();
-	}
-
-	//printf("%d\n\n", sizeof(hlavicka));
-
-	hlavicka->poradie = -1;
-	hlavicka->check = 0;
-	hlavicka->velkostF = velkostFragmentu;
-	//printf("%d %d %d\n", hlavicka->check, hlavicka->poradie, hlavicka->velkostF);
+	checkFragmentSize(velkostFragmentu);
+	setHeader(hlavicka,velkostFragmentu);
 
 	sendto(sockfd, hlavicka, sizeof(HEADER), 0, (struct sockaddr *)&mojaAdresa, slen);
 
@@ -271,10 +274,11 @@ int serverMain() {
 
 	printf("Som v serveri.\n");
 
-	if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+	sockfd = tryToSocket();
+	/*if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		perror("cannot create socket");
 		return 0;
-	}
+	}*/
 
 	printf("Enter port:");
 	scanf("%ld", &cisloPortu);
