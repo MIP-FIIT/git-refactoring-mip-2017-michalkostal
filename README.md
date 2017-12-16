@@ -8,3 +8,6 @@ ktore som este predtym nemal otestovane. V povodnej vetve Master som si vytvoril
 Nasledne som si vytvoril Refaktoring vetvu, kde som postupne commitoval a pushoval priebezne zadania. Taktiež som do nej pridal gitignore súbor, do 
 ktorého som vložil okrem už prítoných súborov všetky, ktoré som nepridal (teda tie, ktoré mi GIT STATUS vyhadzoval ako cervene.) Refaktorovany kod som 
 mergol do vetvy master.
+
+// Zistenie: Pri commitovaní do vetvy Refaktorovanie, sa mi vytvorila v Insights->Network ďaľšia vetva. Pri mergnutí s masterom sa táto cesta kompletne 
+vymazala, respektíve sa možno tie commity tvária ako keby boli prevedené na vetve master. Použitý kód bol "git push origin Refaktorovanie:master"
